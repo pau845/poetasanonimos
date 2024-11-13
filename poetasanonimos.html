@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poetas Anónimos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Poetas Anónimos</h1>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#explorar">Explorar Poemas</a></li>
+                <li><a href="#publicar">Publicar Poema</a></li>
+                <li><a href="#aleatorio">Poema Aleatorio</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section id="inicio">
+        <h2>Bienvenidos a Poetas Anónimos</h2>
+        <p>Una comunidad para compartir y descubrir poesía sin revelar tu identidad.</p>
+    </section>
+
+    <section id="explorar">
+        <h2>Explorar Poemas</h2>
+        <div class="poemas">
+            <!-- Aquí se listarán los poemas -->
+        </div>
+    </section>
+
+    <section id="publicar">
+        <h2>Publica tu Poema</h2>
+        <form id="formulario-poema">
+            <textarea placeholder="Escribe tu poema aquí..." required></textarea>
+            <input type="text" placeholder="Categoría (amor, tristeza...)" required>
+            <button type="submit">Publicar</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>© 2024 Poetas Anónimos - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+section {
+    padding: 2em;
+    max-width: 800px;
+    margin: auto;
+}
+
+form textarea {
+    width: 100%;
+    height: 150px;
+    margin: 10px 0;
+}
+
+button {
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    padding: 1em;
+    background: #333;
+    color: #fff;
+}
+
+// app.js
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb://localhost/poetas_anonimos', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const PoemaSchema = new mongoose.Schema({
+    contenido: String,
+    categoria: String,
+    fecha: { type: Date, default: Date.now }
+});
+
+const Poema = mongoose.model('Poema', PoemaSchema);
+
+app.get('/explorar', async (req, res) => {
+    const poemas = await Poema.find();
+    res.send(poemas);
+});
+
+app.post('/publicar', async (req, res) => {
+    const nuevoPoema = new Poema({
+        contenido: req.body.contenido,
+        categoria: req.body.categoria
+    });
+    await nuevoPoema.save();
+    res.redirect('/explorar');
+});
+
+app.listen(3000, () => {
+    console.log('Servidor iniciado en http://localhost:3000');
+});
